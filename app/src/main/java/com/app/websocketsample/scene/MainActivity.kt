@@ -1,7 +1,8 @@
-package com.app.websocketsample
+package com.app.websocketsample.scene
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.app.websocketsample.R
 
 class MainActivity : AppCompatActivity() {
 
