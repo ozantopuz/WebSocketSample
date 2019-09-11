@@ -1,10 +1,7 @@
 package com.app.websocketsample.core.dagger.component
 
 import com.app.websocketsample.app.App
-import com.app.websocketsample.core.dagger.module.ActivityBindingModule
-import com.app.websocketsample.core.dagger.module.ApplicationModule
-import com.app.websocketsample.core.dagger.module.NetworkModule
-import com.app.websocketsample.core.dagger.module.ViewModelModule
+import com.app.websocketsample.core.dagger.module.*
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -17,7 +14,9 @@ import javax.inject.Singleton
     ApplicationModule::class,
     NetworkModule::class,
     ViewModelModule::class,
-    ActivityBindingModule::class
+    ActivityBindingModule::class,
+    ApiModule::class,
+    RepositoryModule::class
 ])
 
 interface ApplicationComponent : AndroidInjector<App> {
