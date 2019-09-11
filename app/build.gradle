@@ -17,6 +17,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "API_ENDPOINT", "\"https://my-json-server.typicode.com/emredirican/\""
+        buildConfigField "String", "WEB_SOCKET_ENDPOINT", "\"wss://echo.websocket.org/\""
     }
     buildTypes {
         release {
@@ -36,9 +37,11 @@ android {
 
 ext {
     //Android libraries
-    appCompat_version = '1.0.0'
+    appCompat_version = '1.1.0'
+    androidx_version = '1.0.0'
     constraintLayout_version = '2.0.0-alpha3'
     archComponents_version = '2.0.0-rc01'
+    lifecycle_version = '2.2.0-alpha04'
     ktx_version = '1.1.0-alpha04'
 
     //Third party libraries
@@ -65,13 +68,12 @@ dependencies {
     implementation            "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation            "androidx.core:core-ktx:$ktx_version"
     implementation            "androidx.appcompat:appcompat:$appCompat_version"
-    implementation            "androidx.cardview:cardview:$appCompat_version"
-    implementation            "androidx.recyclerview:recyclerview:$appCompat_version"
-    implementation            "androidx.annotation:annotation:$appCompat_version"
-    implementation            "androidx.palette:palette:$appCompat_version"
-    implementation            "androidx.lifecycle:lifecycle-extensions:$archComponents_version"
+    implementation            "androidx.cardview:cardview:$androidx_version"
+    implementation            "androidx.recyclerview:recyclerview:$androidx_version"
+    implementation            "androidx.annotation:annotation:$androidx_version"
+    implementation            "com.google.android.material:material:$androidx_version"
+    implementation            "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     kapt                      "androidx.lifecycle:lifecycle-compiler:$archComponents_version"
-    implementation            "com.google.android.material:material:$appCompat_version"
     implementation            "androidx.constraintlayout:constraintlayout:$constraintLayout_version"
     kapt                      "com.android.databinding:compiler:3.2.0-alpha10"
     kapt                      "com.google.dagger:dagger-compiler:$dagger_version"

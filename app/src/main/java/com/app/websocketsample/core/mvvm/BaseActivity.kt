@@ -4,26 +4,21 @@ import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
-abstract class BaseActivity<B: ViewDataBinding, T : BaseViewModel>: DaggerAppCompatActivity(),
-    LifecycleRegistryOwner {
-
-    var lifecycleRegistry = LifecycleRegistry(this)
-
-    override fun getLifecycle(): LifecycleRegistry {
-        return lifecycleRegistry;
-    }
+abstract class BaseActivity<DB: ViewDataBinding, VM : BaseViewModel>: DaggerAppCompatActivity() {
 
     val disposeBag: CompositeDisposable = CompositeDisposable()
 
     @LayoutRes
     abstract fun layoutId(): Int
 
-    abstract fun instantiateViewModel(): T
+    abstract fun instantiateViewModel(): VM
 
     abstract fun attachView()
 
@@ -34,10 +29,10 @@ abstract class BaseActivity<B: ViewDataBinding, T : BaseViewModel>: DaggerAppCom
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    lateinit var viewModel: T
+    lateinit var viewModel: VM
         internal set
 
-    lateinit var binding: B
+    lateinit var binding: DB
         internal  set
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,29 +1,36 @@
 package com.app.websocketsample.scene
 
 import androidx.lifecycle.MutableLiveData
+import com.app.websocketsample.app.App
 import com.app.websocketsample.core.mvvm.BaseViewModel
 import com.app.websocketsample.data.entity.Mock
 import com.app.websocketsample.data.repository.MockRepository
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(private val repository : MockRepository): BaseViewModel() {
+class MainViewModel @Inject constructor(
+    private val app: App,
+    private val repository : MockRepository): BaseViewModel() {
 
     var isLoading = MutableLiveData<Boolean>()
     var mocks = MutableLiveData<List<Mock>>()
+    var messageSubject : PublishSubject<String> = PublishSubject.create()
 
     override fun onViewAttached() {
         getMocks()
+
+        messageSubject.subscribe {
+            //send message
+        }.addTo(disposeBag)
     }
 
-    private fun getMocks(){
-        repository.getMocks()
-            .subscribeOn(schedulers.io())
-            .observeOn(schedulers.main())
-            .doOnSubscribe { isLoading.value = true }
+    private fun getMocks() {
+         repository.getMocks()
+            .doOnNext { isLoading.value = true }
             .subscribe {
-                isLoading.value = false
                 mocks.value = it
+                isLoading.value = false
             }.addTo(disposeBag)
     }
 

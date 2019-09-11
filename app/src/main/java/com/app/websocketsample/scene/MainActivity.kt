@@ -10,6 +10,7 @@ import com.app.websocketsample.core.mvvm.BaseActivity
 import com.app.websocketsample.data.entity.Mock
 import com.app.websocketsample.databinding.ActivityMainBinding
 import com.app.websocketsample.databinding.LayoutItemMockBinding
+import com.jakewharton.rxbinding2.view.RxView
 import com.minimize.android.rxrecycleradapter.RxDataSource
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.activity_main.*
@@ -28,6 +29,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
     override fun setupView() {
         setRecyclerView()
+
+        RxView.clicks(imageButton).subscribe {
+            viewModel.messageSubject.onNext(editText.text.toString())
+            editText.text.clear()
+        }.addTo(disposeBag)
     }
 
     override fun bindViewModel() {
@@ -52,10 +58,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             .asObservable()
             .subscribe {
                 val binding = it.viewDataBinding ?: return@subscribe
-                it.item.let{ i ->
-                    if (i != null) {
-                        binding.viewModel = MockViewModel(i.id.toString(), i.name.ignoreNull())
-                    }
+                it.item?.let{ i ->
+                    binding.viewModel = MockViewModel(i.id.toString(), i.name.ignoreNull())
                 }
             }.addTo(disposeBag)
 
