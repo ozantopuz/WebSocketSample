@@ -1,20 +1,19 @@
 package com.app.websocketsample.scene
 
-import android.view.View
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.websocketsample.R
-import com.app.websocketsample.core.extension.ignoreNull
-import com.app.websocketsample.core.extension.with
+import com.app.websocketsample.core.extension.*
 import com.app.websocketsample.core.mvvm.BaseActivity
 import com.app.websocketsample.data.entity.Mock
 import com.app.websocketsample.databinding.ActivityMainBinding
 import com.app.websocketsample.databinding.LayoutItemMockBinding
 import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding2.widget.RxTextView
 import com.minimize.android.rxrecycleradapter.RxDataSource
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.activity_main.*
 
+typealias Inputs = MainViewModel.Inputs
 typealias MockViewModel = MainViewModel.MockViewModel
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
@@ -29,19 +28,39 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
     override fun setupView() {
         setRecyclerView()
-
-        RxView.clicks(imageButton).subscribe {
-            viewModel.messageSubject.onNext(editText.text.toString())
-            editText.text.clear()
-        }.addTo(disposeBag)
     }
 
     override fun bindViewModel() {
-        viewModel.isLoading.observe(this, Observer {
-            progressBar.visibility = if (it ) View.VISIBLE else View.GONE
-        })
+        val messageText = RxTextView.textChanges(editText).map { it.toString() }
+        val sendButtonTap = RxView.clicks(imageButton).map { Unit }
 
-        viewModel.mocks.observe(this, Observer { updateRecyclerView(it) })
+        val inputs = Inputs(messageText, sendButtonTap)
+        val outputs = viewModel.makeOutputFrom(inputs)
+
+        outputs.mocks
+            .subscribe {
+                updateRecyclerView(it)
+            }.addTo(disposeBag)
+
+        outputs.isLoading
+            .subscribe {
+                if (it ) progressBar.show() else progressBar.hide()
+            }.addTo(disposeBag)
+
+        outputs.error
+            .subscribe {
+                toast(it.toString())
+            }.addTo(disposeBag)
+
+        outputs.clearEditText
+            .subscribe {
+                editText.text.clear()
+            }.addTo(disposeBag)
+
+        outputs.updateList
+            .subscribe {
+                updateRecyclerView(it)
+            }.addTo(disposeBag)
     }
 
     private fun updateRecyclerView(mocks : List<Mock>) {

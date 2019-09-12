@@ -75,7 +75,6 @@ dependencies {
     implementation            "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     kapt                      "androidx.lifecycle:lifecycle-compiler:$archComponents_version"
     implementation            "androidx.constraintlayout:constraintlayout:$constraintLayout_version"
-    kapt                      "com.android.databinding:compiler:3.2.0-alpha10"
     kapt                      "com.google.dagger:dagger-compiler:$dagger_version"
     implementation            "com.google.dagger:dagger:$dagger_version"
     implementation            "com.google.dagger:dagger-android:$dagger_version"

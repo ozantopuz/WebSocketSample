@@ -12,13 +12,9 @@ class MockRepositoryImpl @Inject constructor(
 
     override fun getMocks(): Observable<List<Mock>> {
         return Observable.just(Unit)
-            .flatMap {
-                api.getMocks().toObservable()
-                .onErrorResumeNext(Observable.empty())
-            }
+            .flatMap { api.getMocks().toObservable() }
             .subscribeOn(schedulers.io())
             .observeOn(schedulers.main())
             .map { it.data ?: listOf() }
-
     }
 }
