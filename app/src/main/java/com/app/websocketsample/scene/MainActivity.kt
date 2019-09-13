@@ -2,7 +2,10 @@ package com.app.websocketsample.scene
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.websocketsample.R
-import com.app.websocketsample.core.extension.*
+import com.app.websocketsample.core.extension.hide
+import com.app.websocketsample.core.extension.show
+import com.app.websocketsample.core.extension.toast
+import com.app.websocketsample.core.extension.with
 import com.app.websocketsample.core.mvvm.BaseActivity
 import com.app.websocketsample.data.entity.Mock
 import com.app.websocketsample.databinding.ActivityMainBinding
@@ -37,7 +40,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
         val inputs = Inputs(messageText, sendButtonTap)
         val outputs = viewModel.makeOutputFrom(inputs)
 
-        outputs.mocks
+        outputs.showList
             .subscribe {
                 updateRecyclerView(it)
             }.addTo(disposeBag)
@@ -78,7 +81,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             .subscribe {
                 val binding = it.viewDataBinding ?: return@subscribe
                 it.item?.let{ i ->
-                    binding.viewModel = MockViewModel(i.id.toString(), i.name.ignoreNull())
+                    binding.viewModel = MockViewModel(i.id.toString(), i.name.toString())
                 }
             }.addTo(disposeBag)
 

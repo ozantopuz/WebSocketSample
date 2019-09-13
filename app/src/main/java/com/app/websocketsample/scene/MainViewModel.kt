@@ -1,6 +1,8 @@
 package com.app.websocketsample.scene
 
 import com.app.websocketsample.app.App
+import com.app.websocketsample.core.extension.createMockObject
+import com.app.websocketsample.core.extension.isMessageFormat
 import com.app.websocketsample.core.mvvm.BaseViewModel
 import com.app.websocketsample.core.rx.RxBus
 import com.app.websocketsample.core.rx.RxEvent
@@ -18,11 +20,12 @@ class MainViewModel @Inject constructor(
     private val app: App,
     private val repository : MockRepository): BaseViewModel() {
 
-    var receivedMessageSubject : PublishSubject<String> = PublishSubject.create()
+    private val receivedMessageSubject : PublishSubject<String> = PublishSubject.create()
+    private var mocks : MutableList<Mock> = mutableListOf()
 
     override fun onViewAttached() {
         RxBus.listen(RxEvent.Message::class.java)
-            .map { it.toString() }
+            .map { it.message.toString() }
             .subscribe {
                 receivedMessageSubject.onNext(it)
             }.addTo(disposeBag)
@@ -34,7 +37,7 @@ class MainViewModel @Inject constructor(
     )
 
     class Outputs(
-        val mocks: Observable<List<Mock>>,
+        val showList: Observable<List<Mock>>,
         val isLoading: Observable<Boolean>,
         val error: Observable<String?>,
         val clearEditText: Observable<Unit>,
@@ -46,16 +49,14 @@ class MainViewModel @Inject constructor(
         val isLoadingSubject: PublishSubject<Boolean> = PublishSubject.create()
         val errorSubject: PublishSubject<String?> = PublishSubject.create()
 
-        val messageText = inputs.messageText.map { it }
-
         val clearEditText = inputs.sendButtonTap
-            .withLatestFrom(messageText)
+            .withLatestFrom(inputs.messageText)
             .map { it.second }
+            .filter { it.isMessageFormat() }
             .doOnNext { app.sendMessage(it) }
             .map { Unit }
 
-
-        val mocks = Observable.just(Unit)
+        val showList = Observable.just(Unit)
             .doOnNext { isLoadingSubject.onNext(true) }
             .flatMap {
                 getMocks()
@@ -67,15 +68,21 @@ class MainViewModel @Inject constructor(
             }
             .doOnNext {
                 isLoadingSubject.onNext(false)
+                mocks = it.toMutableList()
             }
-            .map { it }
 
-        val updateList = receivedMessageSubject
-            .flatMap { getMocks() }
-            .map { it.reversed() }
+        val receivedMessage = receivedMessageSubject.map { it }
+
+        val updateList = receivedMessage
+            .filter { it.isMessageFormat() }
+            .map { it.createMockObject() }
+            .map {
+                mocks.find { list -> list.id == it.id }?.name = it.name
+                mocks.toList()
+            }
 
         return Outputs(
-            mocks,
+            showList,
             isLoadingSubject,
             errorSubject,
             clearEditText,
