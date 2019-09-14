@@ -55,6 +55,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
                 toast(it.toString())
             }.addTo(disposeBag)
 
+        outputs.login
+            .subscribe {
+                runOnUiThread { supportActionBar?.title = it }
+            }.addTo(disposeBag)
+
+        outputs.logout
+            .subscribe {
+                runOnUiThread { supportActionBar?.title = getString(R.string.logout) }
+            }.addTo(disposeBag)
+
+
         outputs.clearEditText
             .subscribe {
                 editText.text.clear()

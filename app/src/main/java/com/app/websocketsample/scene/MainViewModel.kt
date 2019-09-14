@@ -2,6 +2,7 @@ package com.app.websocketsample.scene
 
 import com.app.websocketsample.app.App
 import com.app.websocketsample.core.extension.createMockObject
+import com.app.websocketsample.core.extension.isLogout
 import com.app.websocketsample.core.extension.isMessageFormat
 import com.app.websocketsample.core.mvvm.BaseViewModel
 import com.app.websocketsample.core.rx.RxBus
@@ -40,6 +41,8 @@ class MainViewModel @Inject constructor(
         val showList: Observable<List<Mock>>,
         val isLoading: Observable<Boolean>,
         val error: Observable<String?>,
+        val login: Observable<String>,
+        val logout: Observable<Unit>,
         val clearEditText: Observable<Unit>,
         val updateList: Observable<List<Mock>>
     )
@@ -49,11 +52,17 @@ class MainViewModel @Inject constructor(
         val isLoadingSubject: PublishSubject<Boolean> = PublishSubject.create()
         val errorSubject: PublishSubject<String?> = PublishSubject.create()
 
+        val messageText = inputs.messageText
+            .share()
+
+        val logout = messageText
+            .filter { it.isLogout() }
+            .map { Unit }
+
         val clearEditText = inputs.sendButtonTap
-            .withLatestFrom(inputs.messageText)
+            .withLatestFrom(messageText)
             .map { it.second }
-            .filter { it.isMessageFormat() }
-            .doOnNext { app.sendMessage(it) }
+            .doOnNext { if (it.isMessageFormat()) app.sendMessage(it) }
             .map { Unit }
 
         val showList = Observable.just(Unit)
@@ -72,6 +81,9 @@ class MainViewModel @Inject constructor(
             }
 
         val receivedMessage = receivedMessageSubject.map { it }
+            .share()
+
+        val login = receivedMessage.map { it.createMockObject().name.toString() }
 
         val updateList = receivedMessage
             .filter { it.isMessageFormat() }
@@ -85,6 +97,8 @@ class MainViewModel @Inject constructor(
             showList,
             isLoadingSubject,
             errorSubject,
+            login,
+            logout,
             clearEditText,
             updateList
         )
