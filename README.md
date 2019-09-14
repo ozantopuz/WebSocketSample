@@ -8,10 +8,11 @@ Please don't hesitate to make a PR for any mistakes you see or any improvement i
 * MVVM
 * Rx2
 * Dagger2
-* Retrofit
+* Retrofit2
 * WebSocket
 * ViewModel
 * Lifecycle
 * AndroidX
 * DataBinding
 * Constraint Layout
+* Unit Test
