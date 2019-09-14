@@ -7,7 +7,7 @@ import com.app.websocketsample.core.extension.show
 import com.app.websocketsample.core.extension.toast
 import com.app.websocketsample.core.extension.with
 import com.app.websocketsample.core.mvvm.BaseActivity
-import com.app.websocketsample.data.entity.Mock
+import com.app.websocketsample.data.entity.MockResponse
 import com.app.websocketsample.databinding.ActivityMainBinding
 import com.app.websocketsample.databinding.LayoutItemMockBinding
 import com.jakewharton.rxbinding2.view.RxView
@@ -21,7 +21,7 @@ typealias MockViewModel = MainViewModel.MockViewModel
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
-    private val rxDataSource = RxDataSource<LayoutItemMockBinding, Mock>(R.layout.layout_item_mock, listOf())
+    private val rxDataSource = RxDataSource<LayoutItemMockBinding, MockResponse>(R.layout.layout_item_mock, listOf())
 
     override fun layoutId() = R.layout.activity_main
 
@@ -77,7 +77,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             }.addTo(disposeBag)
     }
 
-    private fun updateRecyclerView(mocks : List<Mock>) {
+    private fun updateRecyclerView(mocks : List<MockResponse>) {
         runOnUiThread { rxDataSource.updateDataSet(mocks).updateAdapter() }
     }
 

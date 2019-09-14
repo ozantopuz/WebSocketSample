@@ -1,6 +1,6 @@
 package com.app.websocketsample.core.extension
 
-import com.app.websocketsample.data.entity.Mock
+import com.app.websocketsample.data.entity.MockResponse
 import java.util.*
 
 fun String.isMessageFormat(): Boolean {
@@ -13,7 +13,7 @@ fun String.isLogout(): Boolean {
     return (this == logout || this == logout.toLowerCase(Locale.ENGLISH) || this == logout.toUpperCase(Locale.ENGLISH))
 }
 
-fun String.createMockObject() : Mock {
+fun String.createMockObject() : MockResponse {
     val hyphen = '-'
-    return Mock(this.substringBefore(hyphen).trim().toInt(), this.substringAfter(hyphen).trim())
+    return MockResponse(this.substringBefore(hyphen).trim().toInt(), this.substringAfter(hyphen).trim())
 }

@@ -7,7 +7,8 @@ import com.app.websocketsample.core.extension.isMessageFormat
 import com.app.websocketsample.core.mvvm.BaseViewModel
 import com.app.websocketsample.core.rx.RxBus
 import com.app.websocketsample.core.rx.RxEvent
-import com.app.websocketsample.data.entity.Mock
+import com.app.websocketsample.core.rx.SchedulerProvider
+import com.app.websocketsample.data.entity.MockResponse
 import com.app.websocketsample.data.repository.MockRepository
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
@@ -19,10 +20,12 @@ import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val app: App,
-    private val repository : MockRepository): BaseViewModel() {
+    private val repository : MockRepository,
+    private val schedulers: SchedulerProvider
+): BaseViewModel() {
 
     private val receivedMessageSubject : PublishSubject<String> = PublishSubject.create()
-    private var mocks : MutableList<Mock> = mutableListOf()
+    private var mocks : MutableList<MockResponse> = mutableListOf()
 
     override fun onViewAttached() {
         RxBus.listen(RxEvent.Message::class.java)
@@ -38,13 +41,13 @@ class MainViewModel @Inject constructor(
     )
 
     class Outputs(
-        val showList: Observable<List<Mock>>,
+        val showList: Observable<List<MockResponse>>,
         val isLoading: Observable<Boolean>,
         val error: Observable<String?>,
         val login: Observable<String>,
         val logout: Observable<Unit>,
         val clearEditText: Observable<Unit>,
-        val updateList: Observable<List<Mock>>
+        val updateList: Observable<List<MockResponse>>
     )
 
     fun makeOutputFrom(inputs: Inputs): Outputs {
@@ -55,11 +58,15 @@ class MainViewModel @Inject constructor(
         val messageText = inputs.messageText
             .share()
 
-        val logout = messageText
-            .filter { it.isLogout() }
+        val sendButtonTap = inputs.sendButtonTap
+            .share()
+
+        val logout = sendButtonTap
+            .withLatestFrom(messageText)
+            .filter { it.second.isLogout() }
             .map { Unit }
 
-        val clearEditText = inputs.sendButtonTap
+        val clearEditText = sendButtonTap
             .withLatestFrom(messageText)
             .map { it.second }
             .doOnNext { if (it.isMessageFormat()) app.sendMessage(it) }
@@ -80,7 +87,8 @@ class MainViewModel @Inject constructor(
                 mocks = it.toMutableList()
             }
 
-        val receivedMessage = receivedMessageSubject.map { it }
+        val receivedMessage = receivedMessageSubject
+            .map { it }
             .share()
 
         val login = receivedMessage.map { it.createMockObject().name.toString() }
@@ -104,7 +112,12 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    private fun getMocks(): Observable<List<Mock>> = repository.getMocks()
+    fun getMocks(): Observable<List<MockResponse>> {
+        return repository.getMocks()
+            .subscribeOn(schedulers.io())
+            .observeOn(schedulers.main())
+            .map { it.data ?: listOf() }
+    }
 
     class MockViewModel(val id: String, val name: String)
 }
